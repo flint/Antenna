@@ -21,7 +21,7 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
 
     /**
      * @param UserChecker $userChecker
-     * @param Coder $coder
+     * @param Coder       $coder
      */
     public function __construct(UserChecker $userChecker, Coder $coder)
     {

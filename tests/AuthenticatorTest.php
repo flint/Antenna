@@ -9,12 +9,11 @@ use Symfony\Component\Security\Core\User\UserChecker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
-
 class AuthenticatorTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $userChecker = new UserChecker;
+        $userChecker = new UserChecker();
 
         $this->coder = new Coder('my_secret');
         $this->authenticator = new Authenticator($userChecker, $this->coder);
@@ -25,7 +24,7 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface', $this->authenticator);
 
         $exception = new AuthenticationException('My Custom Message');
-        $request = new Request;
+        $request = new Request();
 
         $response = $this->authenticator->onAuthenticationFailure($request, $exception);
 
@@ -76,8 +75,8 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
             'sub' => 'my_username',
         ];
 
-        $request = new Request;
-        $request->headers->set('Authorization', 'Bearer ' . $this->coder->encode($payload));
+        $request = new Request();
+        $request->headers->set('Authorization', 'Bearer '.$this->coder->encode($payload));
 
         $token = $this->authenticator->createToken($request, 'my_provider');
 
