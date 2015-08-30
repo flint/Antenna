@@ -1,5 +1,6 @@
 {
     "name" : "flint/antenna",
+    "description" : "Authenticate Users through Symfony Security using JSON Web Tokens",
     "license" : "MIT",
 
     "autoload" : {
@@ -13,5 +14,11 @@
     "require" : {
         "symfony/security" : "^2.4",
         "firebase/php-jwt" : "^3.0"
+    },
+
+    "extra" : {
+        "branch-alias" : {
+            "dev-master" : "1.0.x-dev"
+        }
     }
 }
