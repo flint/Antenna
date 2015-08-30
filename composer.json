@@ -1,0 +1,17 @@
+{
+    "name" : "flint/antenna",
+    "license" : "MIT",
+
+    "autoload" : {
+        "psr-4" : { "Antenna\\" : "src" }
+    },
+
+    "autoload-dev" : {
+        "psr-4" : { "Antenna\\Tests\\" : "tests" }
+    },
+
+    "require" : {
+        "symfony/security" : "^2.4",
+        "firebase/php-jwt" : "^3.0"
+    }
+}
