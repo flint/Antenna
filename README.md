@@ -1,8 +1,8 @@
 Antenna
 =======
 
-[![Build Status](https://travis-ci.org/henrikbjorn/Antenna.svg?branch=master)](https://travis-ci.org/henrikbjorn/Antenna)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/henrikbjorn/Antenna/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/henrikbjorn/Antenna/?branch=master)
+[![Build Status](https://travis-ci.org/flint/Antenna.svg?branch=master)](https://travis-ci.org/henrikbjorn/Antenna)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/flint/Antenna/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/henrikbjorn/Antenna/?branch=master)
 
 Antenna is a small library that helps integrating JWT (JSON Web Token) for projects using
 the Symfony Security Component.
