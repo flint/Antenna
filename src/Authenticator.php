@@ -2,17 +2,16 @@
 
 namespace Antenna;
 
-use Firebase\JWT\JWT;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\SimplePreAuthenticatorInterface;
+use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
-use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 
 class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFailureHandlerInterface
 {
@@ -53,20 +52,14 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
 
     public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
     {
-        if (!$userProvider instanceof TokenUserProviderInterface) {
-            throw new \InvalidArgumentException('$userProvider must be an instance of "Antenna\TokenUserProviderInterface".');
-        }
-
-        // Credentials is an encoded JWT token, therefor use JWT::decode() in order to get the correct
-        // token information.
-        // I really want an actual Token object
+        // I really want an actual Token object instead of stdClass implementation
         $token = $token->getToken();
 
         if ($token->exp < time()) {
             throw new BadCredentialsException('Token have expired.');
         }
 
-        $user = $userProvider->loadUserByToken($token->sub);
+        $user = $userProvider->loadUserByUsername($token->sub);
 
         $this->userChecker->checkPreAuth($user);
         $this->userChecker->checkPostAuth($user);

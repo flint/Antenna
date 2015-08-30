@@ -8,12 +8,17 @@ use Antenna\Coder;
 use Symfony\Component\Security\Core\User\UserChecker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 
 class AuthenticatorTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         $userChecker = new UserChecker();
+
+        $this->userProvider = new InMemoryUserProvider([
+            'my_username' => [],
+        ]);
 
         $this->coder = new Coder('my_secret');
         $this->authenticator = new Authenticator($userChecker, $this->coder);
@@ -84,25 +89,8 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('my_provider', $token->getProviderKey());
     }
 
-    public function testAuthenticateTokenInvalidUserProvider()
-    {
-        $userProvider = $this->getMock('Symfony\Component\Security\Core\User\UserProviderInterface');
-
-        $this->setExpectedException(
-            'InvalidArgumentException',
-            '$userProvider must be an instance of "Antenna\TokenUserProviderInterface".'
-        );
-
-        $token = new Token('my_provider', []);
-
-        $this->authenticator->authenticateToken($token, $userProvider, 'my_provider');
-    }
-
     public function testAuthenticateTokenExpired()
     {
-        $userProvider = new InMemoryTokenUserProvider([
-            'my_token' => [],
-        ]);
 
         $this->setExpectedException(
             'Symfony\Component\Security\Core\Exception\BadCredentialsException',
@@ -113,33 +101,19 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
             'exp' => strtotime('-2 years'),
         ]);
 
-        $this->authenticator->authenticateToken($token, $userProvider, 'my_provider');
+        $this->authenticator->authenticateToken($token, $this->userProvider, 'my_provider');
     }
 
     public function testAuthenticateToken()
     {
-        $userProvider = new InMemoryTokenUserProvider([
-            'my_token' => [],
-        ]);
-
         $token = new Token('my_provider', (object) [
             'exp' => strtotime('+2 years'),
-            'sub' => 'my_token',
+            'sub' => 'my_username',
         ]);
 
-        $token = $this->authenticator->authenticateToken($token, $userProvider, 'my_provider');
+        $token = $this->authenticator->authenticateToken($token, $this->userProvider, 'my_provider');
 
-        $this->assertEquals($token->getUser(), $userProvider->loadUserByToken('my_token'));
+        $this->assertEquals($token->getUser(), $this->userProvider->loadUserByUsername('my_username'));
         $this->assertTrue($token->isAuthenticated());
-    }
-}
-
-class InMemoryTokenUserProvider
-    extends \Symfony\Component\Security\Core\User\InMemoryUserProvider
-    implements \Antenna\TokenUserProviderInterface
-{
-    public function loadUserByToken($token)
-    {
-        return $this->loadUserByUsername($token);
     }
 }
