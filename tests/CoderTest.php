@@ -3,6 +3,7 @@
 namespace Antenna\Tests;
 
 use Antenna\Coder;
+use Antenna\WebToken;
 
 class CoderTest extends \PHPUnit_Framework_TestCase
 {
@@ -10,11 +11,16 @@ class CoderTest extends \PHPUnit_Framework_TestCase
     {
         $coder = new Coder('shared_secret');
 
-        // Object is needed as JWT decodes into stdClass.
-        $token = (object) [
-            'sub' => 'my_subject',
-        ];
+        $utc = new \DateTimeZone('UTC');
+        $issuedAt = date_create_immutable('now');
+        $expireAt = date_create_immutable('+1 year');
 
-        $this->assertEquals($token, $coder->decode($coder->encode($token)));
+        $webToken = $coder->decode($coder->encode(
+            new WebToken('my_subject', $issuedAt, $expireAt)
+        ));
+
+        $this->assertEquals('my_subject', $webToken->getSubject());
+        $this->assertEquals($issuedAt->getTimestamp(), $webToken->getIssuedAt()->getTimestamp());
+        $this->assertEquals($expireAt->getTimestamp(), $webToken->getExpireAt()->getTimestamp());
     }
 }

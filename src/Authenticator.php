@@ -55,10 +55,6 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
         // I really want an actual Token object instead of stdClass implementation
         $token = $token->getToken();
 
-        if ($token->exp < time()) {
-            throw new BadCredentialsException('Token have expired.');
-        }
-
         $user = $userProvider->loadUserByUsername($token->sub);
 
         $this->userChecker->checkPreAuth($user);

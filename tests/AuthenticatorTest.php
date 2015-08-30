@@ -4,6 +4,7 @@ namespace Antenna\Tests;
 
 use Antenna\Authenticator;
 use Antenna\Token;
+use Antenna\WebToken;
 use Antenna\Coder;
 use Symfony\Component\Security\Core\User\UserChecker;
 use Symfony\Component\HttpFoundation\Request;
@@ -76,32 +77,13 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateToken()
     {
-        $payload = (object) [
-            'sub' => 'my_username',
-        ];
-
         $request = new Request();
-        $request->headers->set('Authorization', 'Bearer '.$this->coder->encode($payload));
+        $request->headers->set('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJteV91c2VybmFtZSIsImlhdCI6MTQ0MDk0Njg0NSwiZXhwIjoxNTA0MTA1MjQ1fQ.D3UaQO3Bq-Oezp-_6EK2GcpUi3iS858GvbmoXBS4ZCs');
 
         $token = $this->authenticator->createToken($request, 'my_provider');
 
-        $this->assertEquals($payload, $token->getToken());
+        $this->assertInstanceOf('Antenna\WebToken', $token->getToken());
         $this->assertEquals('my_provider', $token->getProviderKey());
-    }
-
-    public function testAuthenticateTokenExpired()
-    {
-
-        $this->setExpectedException(
-            'Symfony\Component\Security\Core\Exception\BadCredentialsException',
-            'Token have expired.'
-        );
-
-        $token = new Token('my_provider', (object) [
-            'exp' => strtotime('-2 years'),
-        ]);
-
-        $this->authenticator->authenticateToken($token, $this->userProvider, 'my_provider');
     }
 
     public function testAuthenticateToken()

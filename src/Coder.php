@@ -3,6 +3,8 @@
 namespace Antenna;
 
 use Firebase\JWT\JWT;
+use DateTimeImmutable;
+use DateTimeZone;
 
 class Coder
 {
@@ -14,13 +16,32 @@ class Coder
         $this->secret = $secret;
     }
 
-    public function encode($token)
+    public function encode(WebToken $webToken)
     {
-        return JWT::encode($token, $this->secret, $this->algoritm);
+        $payload = [
+            'sub' => $webToken->getSubject(),
+            'iat' => $webToken->getIssuedAt()->getTimestamp(),
+            'exp' => $webToken->getExpireAt()->getTimestamp(),
+        ];
+
+        return JWT::encode($payload, $this->secret, $this->algoritm);
     }
 
-    public function decode($token)
+    /**
+     * @param string $encoded
+     * @return WebToken
+     */
+    public function decode($encoded)
     {
-        return JWT::decode($token, $this->secret, [$this->algoritm]);
+        $payload = (array) JWT::decode($encoded, $this->secret, [$this->algoritm]) + [
+            'sub' => null,
+            'iat' => null,
+            'exp' => null,
+        ];
+
+        $expireAt = new DateTimeImmutable('@' . $payload['exp']);
+        $issuedAt = new DateTimeImmutable('@' . $payload['iat']);
+
+        return new WebToken($payload['sub'], $issuedAt, $expireAt);
     }
 }
