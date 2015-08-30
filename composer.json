@@ -1,5 +1,5 @@
 {
-    "name" : "flint/antenna",
+    "name" : "henrikbjorn/antenna",
     "description" : "Authenticate Users through Symfony Security using JSON Web Tokens",
     "license" : "MIT",
 
