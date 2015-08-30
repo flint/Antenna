@@ -13,4 +13,4 @@ install:
 
 cache:
   directories:
-    - $HOME/.composer/cache
+    - $HOME/.composer/cache/files
