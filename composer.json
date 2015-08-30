@@ -1,10 +1,14 @@
 {
-    "name" : "henrikbjorn/antenna",
+    "name" : "flint/antenna",
     "description" : "Authenticate Users through Symfony Security using JSON Web Tokens",
     "license" : "MIT",
 
     "autoload" : {
         "psr-4" : { "Antenna\\" : "src" }
+    },
+
+    "replace" : {
+        "henrikbjorn/antenna" : "self.version"
     },
 
     "autoload-dev" : {
