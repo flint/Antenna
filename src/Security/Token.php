@@ -1,6 +1,6 @@
 <?php
 
-namespace Antenna;
+namespace Antenna\Security;
 
 class Token extends \Symfony\Component\Security\Core\Authentication\Token\AbstractToken
 {

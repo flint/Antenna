@@ -1,8 +1,8 @@
 <?php
 
-namespace Antenna\Tests;
+namespace Antenna\Tests\Security;
 
-use Antenna\Token;
+use Antenna\Security\Token;
 use Symfony\Component\Security\Core\User\User;
 
 class TokenTest extends \PHPUnit_Framework_TestCase

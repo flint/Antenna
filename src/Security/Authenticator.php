@@ -1,7 +1,8 @@
 <?php
 
-namespace Antenna;
+namespace Antenna\Security;
 
+use Antenna\Coder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\SimplePreAuthenticatorInterface;

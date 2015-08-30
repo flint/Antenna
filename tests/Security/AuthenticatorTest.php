@@ -1,9 +1,9 @@
 <?php
 
-namespace Antenna\Tests;
+namespace Antenna\Tests\Security;
 
-use Antenna\Authenticator;
-use Antenna\Token;
+use Antenna\Security\Authenticator;
+use Antenna\Security\Token;
 use Antenna\WebToken;
 use Antenna\Coder;
 use Symfony\Component\Security\Core\User\UserChecker;
