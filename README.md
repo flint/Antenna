@@ -1,6 +1,8 @@
 Antenna
 =======
 
+[![Build Status](https://travis-ci.org/henrikbjorn/Antenna.svg?branch=master)](https://travis-ci.org/henrikbjorn/Antenna)
+
 Recentry i had to implement authentication in an AngularJS application. For this pupose i found
 https://github.com/sahat/satellizer which supports different flows of authentication, one of these
 is username/password through JSON Web Token (JWT).
