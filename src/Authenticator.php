@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\User\UserChecker;
+use Symfony\Component\Security\Core\User\UserCheckerInterface;
 
 class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFailureHandlerInterface
 {
@@ -20,10 +20,10 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
     private $coder;
 
     /**
-     * @param UserChecker $userChecker
-     * @param Coder       $coder
+     * @param UserCheckerInterface $userChecker
+     * @param Coder                $coder
      */
-    public function __construct(UserChecker $userChecker, Coder $coder)
+    public function __construct(UserCheckerInterface $userChecker, Coder $coder)
     {
         $this->userChecker = $userChecker;
         $this->coder = $coder;
