@@ -2,17 +2,19 @@
 
 namespace Antenna\Security;
 
-class Token extends \Symfony\Component\Security\Core\Authentication\Token\AbstractToken
+use Antenna\WebToken;
+
+class WebTokenToken extends \Symfony\Component\Security\Core\Authentication\Token\AbstractToken
 {
     private $providerKey;
-    private $token;
+    private $webToken;
 
-    public function __construct($providerKey, $token, array $roles = [])
+    public function __construct($providerKey, WebToken $webToken, array $roles = [])
     {
         parent::__construct($roles);
 
         $this->providerKey = $providerKey;
-        $this->token = $token;
+        $this->webToken = $webToken;
     }
 
     public function setUser($user)
@@ -29,9 +31,9 @@ class Token extends \Symfony\Component\Security\Core\Authentication\Token\Abstra
         return $this;
     }
 
-    public function getToken()
+    public function getWebToken()
     {
-        return $this->token;
+        return $this->webToken;
     }
 
     public function getProviderKey()
@@ -48,14 +50,14 @@ class Token extends \Symfony\Component\Security\Core\Authentication\Token\Abstra
     {
         return serialize([
             $this->providerKey,
-            $this->token,
+            $this->webToken,
             parent::serialize(),
         ]);
     }
 
     public function unserialize($serialized)
     {
-        list($this->providerKey, $this->token, $previous) = unserialize($serialized);
+        list($this->providerKey, $this->webToken, $previous) = unserialize($serialized);
 
         parent::unserialize($previous);
     }

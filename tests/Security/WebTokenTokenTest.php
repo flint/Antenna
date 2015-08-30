@@ -2,19 +2,22 @@
 
 namespace Antenna\Tests\Security;
 
-use Antenna\Security\Token;
+use Antenna\Security\WebTokenToken;
+use Antenna\WebToken;
 use Symfony\Component\Security\Core\User\User;
 
-class TokenTest extends \PHPUnit_Framework_TestCase
+class WebTokenTokenTest extends \PHPUnit_Framework_TestCase
 {
     public function testToken()
     {
-        $token = new Token('my_provider_key', ['my-token' => true]);
+        $webToken = new WebToken('my_username', date_create(), date_create());
 
+        $token = new WebTokenToken('my_provider_key', $webToken);
         $user = new User('my_username', 'my_password');
 
         $this->assertEquals('my_provider_key', $token->getProviderKey());
-        $this->assertEquals(['my-token' => true], $token->getToken());
+        $this->assertEquals($webToken, $token->getWebToken());
+
         $this->assertEquals($token, unserialize(serialize($token)));
         $this->assertEquals('', $token->getCredentials());
         $this->assertSame($token, $token->setUser($user));

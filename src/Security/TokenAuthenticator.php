@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 
-class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFailureHandlerInterface
+class TokenAuthenticator implements SimplePreAuthenticatorInterface, AuthenticationFailureHandlerInterface
 {
     private $userChecker;
     private $coder;
@@ -48,23 +48,25 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
             throw new BadCredentialsException('Authorization was not of type Bearer');
         }
 
-        return new Token($providerKey, $this->coder->decode(substr($bearer, 7)));
+        return new WebTokenToken($providerKey, $this->coder->decode(substr($bearer, 7)));
     }
 
     public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
     {
-        // I really want an actual Token object instead of stdClass implementation
-        $token = $token->getToken();
+        $webToken = $token->getWebToken();
 
-        $user = $userProvider->loadUserByUsername($token->sub);
+        $user = $userProvider->loadUserByUsername($webToken->getSubject());
 
         $this->userChecker->checkPreAuth($user);
         $this->userChecker->checkPostAuth($user);
 
-        return (new Token($providerKey, $token, $user->getRoles()))
-            ->setAuthenticated(true)
+        $token = new WebTokenToken($providerKey, $webToken, $user->getRoles());
+        $token
             ->setUser($user)
+            ->setAuthenticated(true)
         ;
+
+        return $token;
     }
 
     /**
@@ -72,11 +74,11 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
      */
     public function supportsToken(TokenInterface $token, $providerKey)
     {
-        if ($token instanceof Token) {
-            return $providerKey == $token->getProviderKey();
+        if (!$token instanceof WebTokenToken) {
+            return false;
         }
 
-        return false;
+        return $providerKey == $token->getProviderKey();
     }
 
     /**
@@ -87,6 +89,8 @@ class Authenticator implements SimplePreAuthenticatorInterface, AuthenticationFa
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        return new Response($exception->getMessage(), 401);
+        return new Response($exception->getMessage(), 401, [
+            'WWW-Authenticate' => 'Bearer',
+        ]);
     }
 }

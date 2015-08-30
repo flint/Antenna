@@ -4,7 +4,6 @@ namespace Antenna;
 
 use Firebase\JWT\JWT;
 use DateTimeImmutable;
-use DateTimeZone;
 
 class Coder
 {
@@ -29,6 +28,7 @@ class Coder
 
     /**
      * @param string $encoded
+     *
      * @return WebToken
      */
     public function decode($encoded)
@@ -39,8 +39,8 @@ class Coder
             'exp' => null,
         ];
 
-        $expireAt = new DateTimeImmutable('@' . $payload['exp']);
-        $issuedAt = new DateTimeImmutable('@' . $payload['iat']);
+        $expireAt = new DateTimeImmutable('@'.$payload['exp']);
+        $issuedAt = new DateTimeImmutable('@'.$payload['iat']);
 
         return new WebToken($payload['sub'], $issuedAt, $expireAt);
     }

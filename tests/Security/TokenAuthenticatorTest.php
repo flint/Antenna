@@ -2,8 +2,8 @@
 
 namespace Antenna\Tests\Security;
 
-use Antenna\Security\Authenticator;
-use Antenna\Security\Token;
+use Antenna\Security\TokenAuthenticator;
+use Antenna\Security\WebTokenToken;
 use Antenna\WebToken;
 use Antenna\Coder;
 use Symfony\Component\Security\Core\User\UserChecker;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 
-class AuthenticatorTest extends \PHPUnit_Framework_TestCase
+class TokenAuthenticatorTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -22,7 +22,7 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->coder = new Coder('my_secret');
-        $this->authenticator = new Authenticator($userChecker, $this->coder);
+        $this->authenticator = new TokenAuthenticator($userChecker, $this->coder);
     }
 
     public function testAuthenticationFailedHandler()
@@ -44,7 +44,7 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->authenticator->supportsToken($invalidToken, 'my_provider'));
 
-        $token = new Token('my_provider', []);
+        $token = new WebTokenToken('my_provider', new WebToken('my_username', date_create(), date_create()));
 
         $this->assertFalse($this->authenticator->supportsToken($token, 'invalid_provider'));
         $this->assertTrue($this->authenticator->supportsToken($token, 'my_provider'));
@@ -82,16 +82,14 @@ class AuthenticatorTest extends \PHPUnit_Framework_TestCase
 
         $token = $this->authenticator->createToken($request, 'my_provider');
 
-        $this->assertInstanceOf('Antenna\WebToken', $token->getToken());
+        $this->assertInstanceOf('Antenna\WebToken', $token->getWebToken());
         $this->assertEquals('my_provider', $token->getProviderKey());
     }
 
     public function testAuthenticateToken()
     {
-        $token = new Token('my_provider', (object) [
-            'exp' => strtotime('+2 years'),
-            'sub' => 'my_username',
-        ]);
+        $webToken = new WebToken('my_username', date_create(), date_create('+2 years'));
+        $token = new WebTokenToken('my_provider', $webToken);
 
         $token = $this->authenticator->authenticateToken($token, $this->userProvider, 'my_provider');
 
