@@ -14,7 +14,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
@@ -33,21 +33,21 @@ class UsernamePasswordAuthenticator implements
     AuthenticationSuccessHandlerInterface
 {
     private $userChecker;
-    private $encoderFactory;
+    private $encoder;
     private $coder;
 
     /**
      * @param UserCheckerInterface    $userChecker
-     * @param EncoderFactoryInterface $encoderFactory
+     * @param UserPasswordEncoderInterface $encoder
      * @param Coder                   $coder
      */
     public function __construct(
         UserCheckerInterface $userChecker,
-        EncoderFactoryInterface $encoderFactory,
+        UserPasswordEncoderInterface $encoder,
         Coder $coder
     ) {
         $this->userChecker = $userChecker;
-        $this->encoderFactory = $encoderFactory;
+        $this->encoder = $encoder;
         $this->coder = $coder;
     }
 
@@ -77,9 +77,7 @@ class UsernamePasswordAuthenticator implements
 
         $this->userChecker->checkPreAuth($user);
 
-        $encoder = $this->encoderFactory->getEncoder($user);
-
-        if (!$encoder->isPasswordValid($user->getPassword(), $token->getCredentials(), $user->getSalt())) {
+        if (!$this->encoder->isPasswordValid($user, $token->getCredentials())) {
             throw new BadCredentialsException('The presented password is invalid.');
         }
 

@@ -25,7 +25,7 @@ services:
 
     antenna.username_password_authenticator:
         class: Antenna\Security\UsernamePasswordAuthenticator
-        arguments: [@security.user_checker, @security.encoder_factory, @antenna.coder]
+        arguments: [@security.user_checker, @security.password_encoder, @antenna.coder]
 
     antenna.token_authenticator:
         class: Antenna\Security\TokenAuthenticator

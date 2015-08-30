@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 use Symfony\Component\Security\Core\User\UserChecker;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 
@@ -15,19 +16,20 @@ class UsernamePasswordAuthenticatorTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $encoder = new PlaintextPasswordEncoder();
         $userChecker = new UserChecker();
         $coder = new Coder('my_secret');
 
-        $encoderFactory = new EncoderFactory([
-            'Symfony\Component\Security\Core\User\UserInterface' => $encoder,
-        ]);
+        $encoder= new UserPasswordEncoder(
+            new EncoderFactory([
+                'Symfony\Component\Security\Core\User\UserInterface' => new PlaintextPasswordEncoder(),
+            ])
+        );
 
         $this->userProvider = new InMemoryUserProvider([
             'my_username' => ['password' => 'my_password', 'roles' => ['ROLE_USER']],
         ]);
 
-        $this->authenticator = new UsernamePasswordAuthenticator($userChecker, $encoderFactory, $coder);
+        $this->authenticator = new UsernamePasswordAuthenticator($userChecker, $encoder, $coder);
     }
 
     public function testCreateTokenNotApplicationJson()
