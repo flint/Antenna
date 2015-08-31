@@ -15,40 +15,6 @@ then "hijack" the request by rendering a body with a token `{ "token" : "json we
 The second uses the `Authorization: Bearer <json web token>` header style to authenticate your
 users by validating the JWT.
 
-Using Symfony Standard it would look something like:
+If you use Symfony Full Stack there is a [AntennaBundle](https://github.com/flint/AntennaBundle) which provides a simple integration.
 
-``` yaml
-services:
-    antenna.coder:
-        class: Antenna\Coder
-        arguments: ['shared-secret']
-
-    antenna.username_password_authenticator:
-        class: Antenna\Security\UsernamePasswordAuthenticator
-        arguments: [@security.user_checker, @security.password_encoder, @antenna.coder]
-
-    antenna.token_authenticator:
-        class: Antenna\Security\TokenAuthenticator
-        arguments: [@security.user_checker, @antenna.coder]
-
-security:
-    providers:
-        in_memory:
-            memory:
-                users:
-                    henrikbjorn:
-                        password: my-unique-password
-                        roles: 'ROLE_USER'
-
-    firewalls:
-        token_exchange:
-            pattern: ^/auth
-            simple-preauth:
-                provider: in_memory
-                authenticator: antenna.username_password_authenticator
-        web_token:
-            pattern: ^/api
-            simple-preauth:
-                provider: in_memory
-                authenticator: antenna.token_authenticator
-```
+Also look in the bundle if you want to know how to integrate with other libraries that use Symfony Security.
