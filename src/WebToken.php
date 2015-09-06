@@ -33,7 +33,7 @@ class WebToken
      * @param string            $subject  The sub (subject) claim identifies the principal that is the subject of the JWT.
      * @param DateTimeInterface $issuedAt The iat (issued at) claim identifies the time at which the JWT was issued.
      * @param DateTimeInterface $expireAt The exp (expiration time) claim identifies the expiration time.
-     * @param [string]mixed Additional claims that is not required.
+     * @param mixed[string] Additional claims that is not required.
      */
     public function __construct($subject, DateTimeInterface $issuedAt, DateTimeInterface $expireAt, $claims = [])
     {
