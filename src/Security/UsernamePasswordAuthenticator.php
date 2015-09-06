@@ -4,6 +4,7 @@ namespace Antenna\Security;
 
 use Antenna\Coder;
 use Antenna\WebToken;
+use Antenna\ClaimsAwareInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,9 +38,9 @@ class UsernamePasswordAuthenticator implements
     private $coder;
 
     /**
-     * @param UserCheckerInterface    $userChecker
+     * @param UserCheckerInterface         $userChecker
      * @param UserPasswordEncoderInterface $encoder
-     * @param Coder                   $coder
+     * @param Coder                        $coder
      */
     public function __construct(
         UserCheckerInterface $userChecker,
@@ -105,10 +106,19 @@ class UsernamePasswordAuthenticator implements
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token)
     {
-        $webToken = new WebToken($token->getUsername(), date_create_immutable(), date_create_immutable('+7 days'));
+        $claims = [];
+        $user = $token->getUser();
+
+        if ($user instanceof ClaimsAwareInterface) {
+            $claims = $user->getClaims();
+        }
+
+        $webToken = new WebToken(
+            $token->getUsername(), date_create_immutable(), date_create_immutable('+7 days'), $claims
+        );
 
         return new JsonResponse([
-            'token' => $this->coder->encode($webToken)
+            'token' => $this->coder->encode($webToken),
         ]);
     }
 }

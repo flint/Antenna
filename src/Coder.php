@@ -17,7 +17,7 @@ class Coder
 
     public function encode(WebToken $webToken)
     {
-        $payload = [
+        $payload = $webToken->all() + [
             'sub' => $webToken->getSubject(),
             'iat' => $webToken->getIssuedAt()->getTimestamp(),
             'exp' => $webToken->getExpireAt()->getTimestamp(),
@@ -33,15 +33,19 @@ class Coder
      */
     public function decode($encoded)
     {
-        $payload = (array) JWT::decode($encoded, $this->secret, [$this->algoritm]) + [
+        $defaults = [
             'sub' => null,
             'iat' => null,
             'exp' => null,
         ];
 
+        $payload = (array) JWT::decode($encoded, $this->secret, [$this->algoritm]) + $defaults;
+
+        $claims = array_diff_key($payload, $defaults);
+
         $expireAt = new DateTimeImmutable('@'.$payload['exp']);
         $issuedAt = new DateTimeImmutable('@'.$payload['iat']);
 
-        return new WebToken($payload['sub'], $issuedAt, $expireAt);
+        return new WebToken($payload['sub'], $issuedAt, $expireAt, $claims);
     }
 }
