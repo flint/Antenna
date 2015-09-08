@@ -19,27 +19,27 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
-use Symfony\Component\Security\Core\User\UserChecker;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
+use Symfony\Component\Security\Core\User\User;
+use Symfony\Component\Security\Core\User\UserChecker;
 
 class UsernamePasswordAuthenticatorTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
         $userChecker = new UserChecker();
-        $coder = new Coder('my_secret');
-
-        $encoder= new UserPasswordEncoder(
+        $encoder = new UserPasswordEncoder(
             new EncoderFactory([
                 'Symfony\Component\Security\Core\User\UserInterface' => new PlaintextPasswordEncoder(),
             ])
         );
 
+        $this->coder = new Coder('my_secret');
         $this->userProvider = new InMemoryUserProvider([
             'my_username' => ['password' => 'my_password', 'roles' => ['ROLE_USER']],
         ]);
 
-        $this->authenticator = new UsernamePasswordAuthenticator($userChecker, $encoder, $coder);
+        $this->authenticator = new UsernamePasswordAuthenticator($userChecker, $encoder, $this->coder);
     }
 
     public function testCreateTokenNotApplicationJson()
@@ -86,6 +86,21 @@ class UsernamePasswordAuthenticatorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Symfony\Component\Security\Core\User\UserInterface', $token->getUser());
         $this->assertTrue($token->isAuthenticated());
+    }
+
+    public function testAuthenticationSuccessful()
+    {
+        $user = new User('my_username', 'my_password', ['ROLE_USER']);
+        $token = new UsernamePasswordToken($user, 'my_password', 'my_provider');
+
+        $response = $this->authenticator->onAuthenticationSuccess(Request::create('/'), $token);
+        $decoded = json_decode($response->getContent(), true);
+
+        $webToken = $this->coder->decode($decoded['token']);
+
+        $shouldExpireAt = date_create_immutable('7 days');
+
+        $this->assertEquals($shouldExpireAt->format('Y-m-d'), $webToken->getExpireAt()->format('Y-m-d'));
     }
 
     public function testAuthenticateTokenInvalidCredentials() {

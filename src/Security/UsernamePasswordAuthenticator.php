@@ -46,6 +46,9 @@ class UsernamePasswordAuthenticator implements
     private $userChecker;
     private $encoder;
     private $coder;
+    private $options = [
+        'time_to_live' => '7 days',
+    ];
 
     /**
      * @param UserCheckerInterface         $userChecker
@@ -55,11 +58,13 @@ class UsernamePasswordAuthenticator implements
     public function __construct(
         UserCheckerInterface $userChecker,
         UserPasswordEncoderInterface $encoder,
-        Coder $coder
+        Coder $coder,
+        $options = []
     ) {
         $this->userChecker = $userChecker;
         $this->encoder = $encoder;
         $this->coder = $coder;
+        $this->options = $this->options + $options;
     }
 
     /**
@@ -123,8 +128,10 @@ class UsernamePasswordAuthenticator implements
             $claims = $user->getClaims();
         }
 
+        $expireAt = date_create_immutable($this->options['time_to_live']);
+
         $webToken = new WebToken(
-            $token->getUsername(), date_create_immutable(), date_create_immutable('+7 days'), $claims
+            $token->getUsername(), date_create_immutable(), $expireAt, $claims
         );
 
         return new JsonResponse([
