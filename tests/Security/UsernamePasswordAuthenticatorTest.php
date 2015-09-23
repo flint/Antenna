@@ -15,10 +15,12 @@ namespace Antenna\Tests\Security;
 use Antenna\Coder;
 use Antenna\Security\UsernamePasswordAuthenticator;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\Encoder\PlaintextPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserChecker;
@@ -109,6 +111,17 @@ class UsernamePasswordAuthenticatorTest extends \PHPUnit_Framework_TestCase
         $token = new UsernamePasswordToken('my_username', 'my_invalid_password', 'my_provider');
 
         $this->authenticator->authenticateToken($token, $this->userProvider, 'my_provider');
+    }
+
+    public function testAuthenticationFailedHandler()
+    {
+        $exception = new BadCredentialsException('The presented password is invalid.');
+
+        $response = $this->authenticator->onAuthenticationFailure(Request::create('/'), $exception);
+        $decoded = json_decode($response->getContent(), true);
+
+        $this->assertEquals(401, $decoded['code']);
+        $this->assertEquals($exception->getMessage(), $decoded['message']);
     }
 
     public function testSupportsToken()
