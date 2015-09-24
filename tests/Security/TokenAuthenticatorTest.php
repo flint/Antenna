@@ -43,9 +43,11 @@ class TokenAuthenticatorTest extends \PHPUnit_Framework_TestCase
         $request = new Request();
 
         $response = $this->authenticator->onAuthenticationFailure($request, $exception);
+        $decoded = json_decode($response->getContent(), true);
 
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('My Custom Message', $response->getContent());
+        $this->assertEquals(401, $decoded['code']);
+        $this->assertEquals($exception->getMessage(), $decoded['message']);
     }
 
     public function testSupportsToken()

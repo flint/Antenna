@@ -13,8 +13,8 @@
 namespace Antenna\Security;
 
 use Antenna\Coder;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\SimplePreAuthenticatorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\PreAuthenticatedToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -99,7 +99,10 @@ class TokenAuthenticator implements SimplePreAuthenticatorInterface, Authenticat
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        return new Response($exception->getMessage(), 401, [
+        return new JsonResponse([
+            'code' => 401,
+            'message' => $exception->getMessage(),
+        ], 401, [
             'WWW-Authenticate' => 'Bearer',
         ]);
     }
